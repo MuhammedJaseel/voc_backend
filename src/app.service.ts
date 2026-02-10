@@ -3,6 +3,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World! v0.0.1';
+    return 'VOC API \n Version v0.0.2';
   }
 }

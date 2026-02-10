@@ -9,31 +9,19 @@ import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { JwtService } from '@nestjs/jwt';
 import { NextFunction } from 'express';
-import { SalesController } from './sales/sales.controller';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
-import { SalesService } from './sales/sales.service';
-import { AdminsController } from './admins/admins.controller';
-import { AdminsService } from './admins/admins.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Enquiry, EnquirySchema } from 'src/schemas/users.schema';
 
 @Module({
-  controllers: [
-    AdminController,
-    AdminsController,
-    SalesController,
-    UsersController,
-  ],
-  providers: [
-    AdminService,
-    AdminsService,
-    SalesService,
-    UsersService,
-    JwtService,
+  controllers: [AdminController],
+  providers: [AdminService, JwtService],
+  imports: [
+    MongooseModule.forFeature([{ name: Enquiry.name, schema: EnquirySchema }]),
   ],
 })
 export class AdminModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AmminMiddleware).forRoutes('admin');
+    consumer.apply(AmminMiddleware).forRoutes('api/admin/*');
   }
 }
 
@@ -41,8 +29,7 @@ export class AdminModule {
 class AmminMiddleware implements NestMiddleware {
   constructor(private jwtService: JwtService) {}
 
-  private readonly ADMIN_SECRET =
-    process.env.ADMIN_JWT_SECRET || 'default_admin_secret';
+  private readonly ADMIN_SECRET = process.env.ADMIN_SECRET_KEY;
 
   use(req: Request, res: Response, next: NextFunction) {
     try {

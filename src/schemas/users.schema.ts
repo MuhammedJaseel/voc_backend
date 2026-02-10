@@ -13,3 +13,32 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+@Schema({ timestamps: true })
+export class Enquiry {
+  @Prop({ type: String, required: true })
+  name: string;
+
+  @Prop({ type: String })
+  email: string;
+
+  @Prop({ type: String })
+  phone: string;
+
+  @Prop({ type: String })
+  msg: string;
+
+  @Prop({ type: String })
+  ip: string;
+
+  @Prop({ type: String, required: true })
+  type: 'CONTACT' | 'ENQUIRY' | 'JOIN_TEAM';
+
+  @Prop({ type: String, required: true, default: 'NEW' })
+  status: 'NEW' | 'SEEN' | 'DONE';
+
+  @Prop({ type: String })
+  statusMsg: string;
+}
+
+export const EnquirySchema = SchemaFactory.createForClass(Enquiry);
