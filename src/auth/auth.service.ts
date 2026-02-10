@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { nodemailer } from 'nodemailer';
 
 import {
   AdminLoginDto,
@@ -19,17 +20,38 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private readonly USER_SECRET =
-    process.env.USER_JWT_SECRET || 'default_admin_secret';
-  private readonly ADMIN_SECRET =
-    process.env.ADMIN_JWT_SECRET || 'default_admin_secret';
-  private readonly ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'example@gmail.com';
+  private readonly ADMIN_SECRET = process.env.ADMIN_SECRET_KEY;
+  private readonly ADMIN_SECRET_TEMP = process.env.ADMIN_SECRET_KEY_TEMP;
+  private readonly ADMIN_EMAILS = process.env.ADMIN_EMAILS.split(',');
 
   _generateOTP() {
-    return '123456';
-    // return Math.floor(Math.random() * 1000000)
-    //   .toString()
-    //   .padStart(6, '0');
+    return Math.floor(Math.random() * 1000000)
+      .toString()
+      .padStart(4, '0');
+  }
+
+  async _sendOTPEmail(email: string, otp: string) {
+    // TODO: Configure nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // or your email service
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your OTP Code',
+      html: `<p>Your OTP code is: <strong>${otp}</strong></p>`,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (error) {
+      console.error('Failed to send OTP email:', error);
+    }
   }
 
   // ////////////////////////////////////////////////////////////////////////
@@ -38,23 +60,32 @@ export class AuthService {
   // ////////////////////////////////////////////////////////////////////////
 
   async adminVerify(body: VerifyAdminDto): Promise<VerifyAdminResDto> {
-    if (body.email === this.ADMIN_EMAIL) {
-      const otp = this._generateOTP();
+    const result = this.ADMIN_EMAILS.indexOf(body.email);
 
-      const secret = this.ADMIN_SECRET + otp;
-      return { token: this.jwtService.sign({}, { secret, expiresIn: '5m' }) };
-    }
-    throw new NotFoundException('Not a valid admin');
+    if (result === -1) throw new NotFoundException('Not a valid admin');
+    if (!this.ADMIN_SECRET_TEMP)
+      throw new NotFoundException('Admin OTP not set');
+
+    const email = body.email;
+    const otp = this._generateOTP();
+    const secret = this.ADMIN_SECRET_TEMP + otp;
+
+    const token = this.jwtService.sign({ email }, { secret, expiresIn: '5m' });
+
+    return { token };
   }
 
   async adminLogin(body: AdminLoginDto): Promise<AdminLoginResDto> {
-    var secret = this.ADMIN_SECRET + body.otp;
+    var secret = this.ADMIN_SECRET_TEMP + body.otp;
     try {
-      this.jwtService.verify(body.token, { secret });
-      secret = this.ADMIN_SECRET;
-      return {
-        token: this.jwtService.sign({}, { secret, expiresIn: '1d' }),
-      };
+      const payload = this.jwtService.verify(body.token, { secret });
+
+      const token = this.jwtService.sign(payload, {
+        secret: this.ADMIN_SECRET,
+        expiresIn: '1d',
+      });
+
+      return { token };
     } catch (error) {
       throw new BadRequestException('Invalid or expired OTP');
     }

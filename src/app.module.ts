@@ -10,8 +10,8 @@ import { MongooseModule } from '@nestjs/mongoose';
   imports: [
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: '',
-        dbName: 'brand_db',
+        uri: process.env.MONGO_URI || '',
+        dbName: 'voc',
       }),
     }),
     UserModule,
