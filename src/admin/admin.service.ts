@@ -17,19 +17,19 @@ export class AdminService {
   async getHome(): Promise<any> {
     const contactQ = { type: 'CONTACT', status: 'NEW' };
     const contact = {
-      total: await this.enquiryModel.countDocuments(contactQ),
+      total: await this.enquiryModel.countDocuments({ type: 'CONTACT' }),
       unattend: await this.enquiryModel.countDocuments(contactQ),
     };
 
     const enquiryQ = { type: 'ENQUIRY', status: 'NEW' };
     const enquiry = {
-      total: await this.enquiryModel.countDocuments(enquiryQ),
+      total: await this.enquiryModel.countDocuments({ type: 'ENQUIRY' }),
       unattend: await this.enquiryModel.countDocuments(enquiryQ),
     };
 
     const joinTeamQ = { type: 'JOIN_TEAM', status: 'NEW' };
     const joinTeam = {
-      total: await this.enquiryModel.countDocuments(joinTeamQ),
+      total: await this.enquiryModel.countDocuments({ type: 'JOIN_TEAM' }),
       unattend: await this.enquiryModel.countDocuments(joinTeamQ),
     };
 
