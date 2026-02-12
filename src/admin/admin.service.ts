@@ -15,28 +15,22 @@ export class AdminService {
   }
 
   async getHome(): Promise<any> {
+    const contactQ = { type: 'CONTACT', status: 'NEW' };
     const contact = {
-      total: await this.enquiryModel.countDocuments({ type: 'CONTACT' }),
-      unattend: await this.enquiryModel.countDocuments({
-        type: 'CONTACT',
-        status: 'NEW',
-      }),
+      total: await this.enquiryModel.countDocuments(contactQ),
+      unattend: await this.enquiryModel.countDocuments(contactQ),
     };
 
+    const enquiryQ = { type: 'ENQUIRY', status: 'NEW' };
     const enquiry = {
-      total: await this.enquiryModel.countDocuments({ type: 'ENQUIRY' }),
-      unattend: await this.enquiryModel.countDocuments({
-        type: 'ENQUIRY',
-        status: 'NEW',
-      }),
+      total: await this.enquiryModel.countDocuments(enquiryQ),
+      unattend: await this.enquiryModel.countDocuments(enquiryQ),
     };
 
+    const joinTeamQ = { type: 'JOIN_TEAM', status: 'NEW' };
     const joinTeam = {
-      total: await this.enquiryModel.countDocuments({ type: 'JOIN_TEAM' }),
-      unattend: await this.enquiryModel.countDocuments({
-        type: 'JOIN_TEAM',
-        status: 'NEW',
-      }),
+      total: await this.enquiryModel.countDocuments(joinTeamQ),
+      unattend: await this.enquiryModel.countDocuments(joinTeamQ),
     };
 
     return { contact, enquiry, joinTeam };
@@ -59,6 +53,7 @@ export class AdminService {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
+      .projection('name email phone createdAt status type statusMsg')
       .exec();
 
     const total = await this.enquiryModel.countDocuments(query);

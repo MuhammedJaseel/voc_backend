@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Enquiry } from 'src/schemas/users.schema';
 import { Model } from 'mongoose';
 import { MailerService } from 'src/commen/mailer.service';
+import { sendToAllSocket } from 'src/main';
 
 @Injectable()
 export class UserService {
@@ -56,6 +57,7 @@ export class UserService {
       type: 'CONTACT',
       ip,
     });
+    sendToAllSocket({ type: 'NEW_CONTACT' });
     return { success: true };
   }
 
@@ -70,6 +72,7 @@ export class UserService {
       type: 'ENQUIRY',
       ip,
     });
+    sendToAllSocket({ type: 'NEW_ENQUIRY' });
     return { success: true };
   }
 
@@ -84,6 +87,7 @@ export class UserService {
       type: 'JOIN_TEAM',
       ip,
     });
+    sendToAllSocket({ type: 'NEW_JOIN_TEAM' });
     return { success: true };
   }
 }
