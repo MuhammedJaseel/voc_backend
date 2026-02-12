@@ -53,7 +53,7 @@ export class AdminService {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
-      .projection('name email phone createdAt status type statusMsg')
+      .select('name email phone createdAt status type statusMsg')
       .exec();
 
     const total = await this.enquiryModel.countDocuments(query);
