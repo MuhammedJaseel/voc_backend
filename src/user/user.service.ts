@@ -36,8 +36,8 @@ export class UserService {
 
     try {
       this.mailerService.sendMail('jaseelmanamulli@gmail.com', subj, html);
-      // this.mailerService.sendMail('arakkalfaris@gmail.com', subj, html);
-      // this.mailerService.sendMail('info@vocindia.net', subj, html);
+      this.mailerService.sendMail('arakkalfaris@gmail.com', subj, html);
+      this.mailerService.sendMail('info@vocindia.net', subj, html);
     } catch (error) {
       console.error('Failed to send email:', error);
     }
